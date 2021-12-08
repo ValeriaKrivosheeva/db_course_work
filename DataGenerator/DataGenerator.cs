@@ -2,6 +2,7 @@
 using Model;
 using System.Collections.Generic;
 using System.IO;
+using System.Diagnostics;
 namespace DataGenerator
 {
     class DataGenerator
@@ -13,11 +14,10 @@ namespace DataGenerator
             {
                 Console.WriteLine(@"Available commands:
                 1. Generate garments
-                2. Generate orders
+                2. Generate orders and order items
                 3. Generate clients
                 4. Generate reviews
-                5. Generate order items
-                6. Exit");
+                5. Exit");
                 string command = Console.ReadLine();
                 string generatorPath = "./../data/";
                 switch(command)
@@ -32,10 +32,9 @@ namespace DataGenerator
                         ProcessGenerateClients(generatorPath, service.clientRepository);
                         break;
                     case "4":
+                        ProcessGenerateReviews(service);
                         break;
                     case "5":
-                        break;
-                    case "6":
                         Console.WriteLine("End.");
                         Environment.Exit(0);
                         break;
@@ -68,6 +67,28 @@ namespace DataGenerator
                 }
             }
         }
+        static void ProcessGenerateReviews(Service service)
+        {
+            int numberOfClients = service.clientRepository.GetCount();
+            if(numberOfClients == 0)
+            {
+                Console.WriteLine("Error: There are no clients in the database. Please, generate them first.");
+                return;
+            }
+            int numberOfGarments = service.garmentRepository.GetCount();
+            if(numberOfGarments == 0)
+            {
+                Console.WriteLine("Error: There are no garments in the database. Please, generate them first.");
+                return;
+            }
+            int numberOfEntities = GetNumberOfEntities("review");
+            Console.WriteLine("Data is generating...");
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            service.reviewRepository.Generate(numberOfEntities);
+            sw.Stop();
+            Console.WriteLine($"Generated for [{sw.Elapsed.Milliseconds}] ms!");
+        }
         static void ProcessGenerateOrders(Service service)
         {
             int numberOfClients = service.clientRepository.GetCount();
@@ -84,8 +105,11 @@ namespace DataGenerator
             }
             int numberOfEntities = GetNumberOfEntities("order");
             Console.WriteLine("Data is generating...");
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
             service.orderRepository.Generate(numberOfEntities);
-            Console.WriteLine("Done!");
+            sw.Stop();
+            Console.WriteLine($"Generated for [{sw.Elapsed.Milliseconds}] ms!");
         }
         static void ProcessGenerateGarments(string dataPath, GarmentRepository repo)
         {
@@ -96,6 +120,8 @@ namespace DataGenerator
             List<Garment> generated = new List<Garment>();
             Random ran = new Random();
             Console.WriteLine("Data is generating...");
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
             for(int i = 0; i<numberOfEntities; i++)
             {
                 Garment current = new Garment();
@@ -106,7 +132,8 @@ namespace DataGenerator
                 generated.Add(current);
             }
             repo.InsertRange(generated);
-            Console.WriteLine("Done!");
+            sw.Stop();
+            Console.WriteLine($"Generated for [{sw.Elapsed.Milliseconds}] ms!");
         }
         static void ProcessGenerateClients(string dataPath, ClientRepository repo)
         {
@@ -119,6 +146,8 @@ namespace DataGenerator
             DateTime end = new DateTime(2003,1,1);
             TimeSpan range = end-start;
             Console.WriteLine("Data is generating...");
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
             for(int i = 0; i<numberOfEntities; i++)
             {
                 Client current = new Client();
@@ -129,7 +158,8 @@ namespace DataGenerator
                 generated.Add(current);
             }
             repo.InsertRange(generated);
-            Console.WriteLine("Done!");
+            sw.Stop();
+            Console.WriteLine($"Generated for [{sw.Elapsed.Milliseconds}] ms!");
         }
     }
 }

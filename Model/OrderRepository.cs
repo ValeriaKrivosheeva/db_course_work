@@ -10,7 +10,11 @@ namespace Model
         }
         public void Generate(int amount)
         {
-            string query = @$"CREATE EXTENSION IF NOT EXISTS tsm_system_rows;
+            string query = @$"CREATE TRIGGER order_items
+                            AFTER INSERT ON orders
+                            FOR EACH ROW EXECUTE PROCEDURE trigger();
+
+                            CREATE EXTENSION IF NOT EXISTS tsm_system_rows;
                             CREATE OR REPLACE FUNCTION random_client_id() RETURNS INT as $$
                             SELECT id FROM clients TABLESAMPLE system_rows(1);
                             $$ language sql;
@@ -25,10 +29,12 @@ namespace Model
                             $$ LANGUAGE plpgsql;
                             INSERT INTO orders (created_date, shipping_method, client_id)
                             SELECT
-                            timestamp '2020-01-01' + random() * (timestamp '2021-12-12' - timestamp '2020-01-01'),
+                            timestamp '2018-01-01' + random() * (timestamp '2021-12-12' - timestamp '2018-01-01'),
                             random_choice(array['by air', 'by land', 'by sea']) as random_char,
                             random_client_id()
-                            FROM generate_series(1, {amount})";
+                            FROM generate_series(1, {amount});
+                            
+                            DROP TRIGGER order_items ON orders";
             context.Database.ExecuteSqlRaw(query);
         }
     }

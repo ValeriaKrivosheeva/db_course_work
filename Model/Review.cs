@@ -1,3 +1,4 @@
+using System;
 namespace Model
 {
     public class Review
@@ -5,6 +6,7 @@ namespace Model
         public int id { get; set; }
         public string opinion { get; set; }
         public int rating { get; set; }
+        public DateTime posted_at { get; set; }
         public int client_id { get; set; }
         public int garment_id { get; set; }
         public Client client { get; set; }
@@ -12,7 +14,7 @@ namespace Model
         public override string ToString()
         {
             return string.Format($"[{this.id}]\nOpinion: {this.opinion},\nRating: {this.rating}," 
-            + $"\nClient id: {this.client_id},\nGarment id: {this.garment_id}.");
+            + $"\nPosted at: {this.posted_at.ToShortDateString()},\nClient id: {this.client_id},\nGarment id: {this.garment_id}.");
         }
     }
 }
