@@ -1,4 +1,6 @@
 ﻿using System;
+using ControllerLib;
+
 
 namespace ConsoleApp
 {
@@ -6,7 +8,8 @@ namespace ConsoleApp
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            Controller controller = new Controller();
+            GUI.ProcessUserInterface(controller);
         }
     }
 }

@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 namespace Model
 {
     public class ReviewRepository
@@ -7,6 +8,42 @@ namespace Model
         public ReviewRepository(ServiceContext context)
         {
             this.context = context;
+        }
+        public int Insert(Review review)
+        {
+            context.reviews.Add(review);
+            context.SaveChanges();
+            return review.id;
+        }
+        public void Update(int id, Review review)
+        {
+            var local = context.reviews.Find(id);
+            if (local != null)
+            {
+                context.Entry(local).State = EntityState.Detached;
+            }
+            context.Entry(review).State = EntityState.Modified;
+            context.SaveChanges();
+        }
+        public void DeleteById(int id)
+        {
+            context.reviews.Remove(context.reviews.Find(id));
+            context.SaveChanges();
+        }
+        public void DeleteByClientId(int clientId)
+        {
+            context.reviews.RemoveRange(context.reviews.Where(x => x.client_id == clientId));
+            context.SaveChanges();
+        }
+        public void DeleteByGarmentId(int garmentId)
+        {
+            context.reviews.RemoveRange(context.reviews.Where(x => x.garment_id == garmentId));
+            context.SaveChanges();
+        }
+        public Review GetById(int id)
+        {
+            Review result = context.reviews.Find(id);
+            return result;
         }
         public void Generate(int amount)
         {

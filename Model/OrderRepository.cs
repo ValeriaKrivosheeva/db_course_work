@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
+using System.Collections.Generic;
 namespace Model
 {
     public class OrderRepository
@@ -7,6 +9,43 @@ namespace Model
         public OrderRepository(ServiceContext context)
         {
             this.context = context;
+        }
+        public int Insert(Order order)
+        {
+            context.orders.Add(order);
+            context.SaveChanges();
+            return order.id;
+        }
+        
+        public void Update(int id, Order order)
+        {
+            var local = context.orders.Find(id);
+            if (local != null)
+            {
+                context.Entry(local).State = EntityState.Detached;
+            }
+            context.Entry(order).State = EntityState.Modified;
+            context.SaveChanges();
+        }
+        public void DeleteById(int id)
+        {
+            context.orders.Remove(context.orders.Find(id));
+            context.SaveChanges();
+        }
+        public void DeleteByClientId(int clientId)
+        {
+            List<Order> orders = context.orders.Where(x => x.client_id == clientId).ToList();
+            foreach (Order order in orders)
+            {
+                context.order_items.RemoveRange(context.order_items.Where(x => x.order_id == order.id));
+            }
+            context.orders.RemoveRange(orders);
+            context.SaveChanges();
+        }
+        public Order GetById(int id)
+        {
+            Order result = context.orders.Find(id);
+            return result;
         }
         public void Generate(int amount)
         {
