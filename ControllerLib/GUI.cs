@@ -14,7 +14,10 @@ namespace ControllerLib
                 2. Order
                 3. Review
                 4. Client
-                5. Exit");
+
+
+                5. Chart Rating
+                6. Exit");
                 string command = Console.ReadLine();
                 switch(command)
                 {
@@ -31,6 +34,9 @@ namespace ControllerLib
                         ProcessClient(controller);
                         break;
                     case "5":
+                        ProcessRatingChart(controller);
+                        break;
+                    case "6":
                         Console.WriteLine("End.");
                         Environment.Exit(0);
                         break;
@@ -40,6 +46,11 @@ namespace ControllerLib
                 }
             }
         }
+        static void ProcessRatingChart(Controller controller)
+        {
+            int garmentId = GetIdToProcess("garment", "build rating chart");
+            controller.CreateGarmentRatingChart(garmentId);
+        }
         static void ProcessGarment(Controller controller)
         {
             while(true)
@@ -48,7 +59,10 @@ namespace ControllerLib
                 1. Insert new garment
                 2. Update existing garment
                 3. Delete existing garment
-                4. Return to main menu");
+                4. Get garment by id
+                5. Get garments by brand
+                6. Get garments by brand and cost range
+                7. Return to main menu");
                 string command = Console.ReadLine();
                 switch(command)
                 {
@@ -62,6 +76,15 @@ namespace ControllerLib
                         controller.DeleteGarment(GetIdToProcess("garment", "delete"));
                         break;
                     case "4":
+                        controller.GetGarmentById(GetIdToProcess("garment", "find"));
+                        break;
+                    case "5":
+                        ProcessGetGarmentsByBrand(controller);
+                        break;
+                    case "6":
+                        ProcessGetGarmentsByCostRange(controller);
+                        break;
+                    case "7":
                         Console.WriteLine("Returning to main menu...");
                         return;
                     default:
@@ -119,6 +142,45 @@ namespace ControllerLib
             string manCountry = Console.ReadLine();
             controller.UpdateGarment(garmentId, name, brand, cost, manCountry);
         }
+        static void ProcessGetGarmentsByBrand(Controller controller)
+        {
+            Console.Write("Enter brand to search by: ");
+            string brand = Console.ReadLine();
+            controller.GetGarmentsByBrand(brand);
+        }
+        static void ProcessGetGarmentsByCostRange(Controller controller)
+        {
+            Console.WriteLine("Enter info to search by:");
+            Console.Write("Brand: ");
+            string brand = Console.ReadLine();
+            int minCost = 0;
+            while(true)
+            {
+                Console.Write("Min cost: ");
+                if(int.TryParse(Console.ReadLine(), out minCost) || minCost <= 0)
+                {
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Error: min cost must be positive integer. Try again.");
+                }
+            }
+            int maxCost = 0;
+            while(true)
+            {
+                Console.Write("Max cost: ");
+                if(int.TryParse(Console.ReadLine(), out maxCost) || maxCost <= 0)
+                {
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Error: max cost must be positive integer. Try again.");
+                }
+            }
+            controller.GetGarmentByCostRange(brand, minCost, maxCost);
+        }
         static void ProcessOrder(Controller controller)
         {
             while(true)
@@ -126,7 +188,9 @@ namespace ControllerLib
                 Console.WriteLine(@"Available options for orders (by numbers):
                 1. Insert new order
                 2. Delete existing order
-                3. Return to main menu");
+                3. Get order by id
+                4. Get orders by client id
+                5. Return to main menu");
                 string command = Console.ReadLine();
                 switch(command)
                 {
@@ -137,6 +201,12 @@ namespace ControllerLib
                         controller.DeleteOrder(GetIdToProcess("order", "delete"));
                         break;
                     case "3":
+                        controller.GetOrderById(GetIdToProcess("order", "find"));
+                        return;
+                    case "4":
+                        controller.GetOrdersByClientId(GetIdToProcess("client", "search by"));
+                        return;
+                    case "5":
                         Console.WriteLine("Returning to main menu...");
                         return;
                     default:
@@ -181,7 +251,108 @@ namespace ControllerLib
         }
         static void ProcessReview(Controller controller)
         {
-
+            while(true)
+            {
+                Console.WriteLine(@"Available options for reviews (by numbers):
+                1. Insert new review
+                2. Update existing review
+                3. Delete existing review
+                4. Get reviews by client id
+                5. Get reviews by garment id
+                6. Return to main menu");
+                string command = Console.ReadLine();
+                switch(command)
+                {
+                    case "1":
+                        ProcessInsertReview(controller);
+                        break;
+                    case "2":
+                        ProcessUpdateReview(controller);
+                        break;
+                    case "3":
+                        controller.DeleteReview(GetIdToProcess("review", "delete"));
+                        break;
+                    case "4":
+                        controller.GetReviewsByClientId(GetIdToProcess("client", "search by"));
+                        break;
+                    case "5":
+                        controller.GetReviewsByGarmentId(GetIdToProcess("garment", "search by"));
+                        break;
+                    case "6":
+                        Console.WriteLine("Returning to main menu...");
+                        return;
+                    default:
+                        Console.WriteLine("Error: Unavailable command. Try again.");
+                        break;
+                }
+            }
+        }
+        static void ProcessInsertReview(Controller controller)
+        {
+            Console.WriteLine("Enter new review info:");
+            int clientId = 0;
+            while(true)
+            {
+                Console.Write("Client id: ");
+                if(int.TryParse(Console.ReadLine(), out clientId) || clientId <= 0)
+                {
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Error: client id must be positive integer. Try again.");
+                }
+            }
+            int garmentId = 0;
+            while(true)
+            {
+                Console.Write("Garment id: ");
+                if(int.TryParse(Console.ReadLine(), out garmentId) || garmentId <= 0)
+                {
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Error: garment id must be positive integer. Try again.");
+                }
+            }
+            Console.Write("Opinion: ");
+            string opinion = Console.ReadLine();
+            int rating = 0;
+            while(true)
+            {
+                Console.Write("Rating: ");
+                if(int.TryParse(Console.ReadLine(), out rating) || rating <= 0)
+                {
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Error: rating must be positive integer. Try again.");
+                }
+            }
+            controller.InsertReview(opinion, rating, clientId, garmentId);
+        }
+        static void ProcessUpdateReview(Controller controller)
+        {
+            int reviewId = GetIdToProcess("review", "update");
+            Console.WriteLine("Enter updated review info:");
+            Console.Write("Opinion: ");
+            string opinion = Console.ReadLine();
+            int rating = 0;
+            while(true)
+            {
+                Console.Write("Rating: ");
+                if(int.TryParse(Console.ReadLine(), out rating) || rating <= 0)
+                {
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Error: rating must be positive integer. Try again.");
+                }
+            }
+            controller.UpdateReview(reviewId, opinion, rating);
         }
         static int GetIdToProcess(string entity, string process)
         {
@@ -208,7 +379,9 @@ namespace ControllerLib
                 1. Insert new client
                 2. Update existing client
                 3. Delete existing client
-                4. Return to main menu");
+                4. Get client by id
+                5. Get clients by fullname
+                6. Return to main menu");
                 string command = Console.ReadLine();
                 switch(command)
                 {
@@ -222,6 +395,12 @@ namespace ControllerLib
                         controller.DeleteClient(GetIdToProcess("client", "delete"));
                         break;
                     case "4":
+                        controller.GetClientById(GetIdToProcess("client", "find"));
+                        break;
+                    case "5":
+                        ProcessGetClientsByFullname(controller);
+                        break;
+                    case "6":
                         Console.WriteLine("Returning to main menu...");
                         return;
                     default:
@@ -229,6 +408,12 @@ namespace ControllerLib
                         break;
                 }
             }
+        }
+        static void ProcessGetClientsByFullname(Controller controller)
+        {
+            Console.Write("Enter clients fullname to search by: ");
+            string fullname = Console.ReadLine();
+            controller.GetClientsByFullname(fullname);
         }
         static void ProcessInsertClient(Controller controller)
         {
@@ -274,10 +459,6 @@ namespace ControllerLib
                 }
             }
             controller.UpdateClient(clientId, fullname, email, birthDate);
-        }
-        static void ProcessDeleteClient(Controller controller)
-        {
-
         }
     }
 }

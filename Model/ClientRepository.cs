@@ -36,6 +36,11 @@ namespace Model
             Client result = context.clients.Find(id);
             return result;
         }
+        public List<Client> GetByFullname(string fullname)
+        {
+            List<Client> clients = context.clients.Where(x => x.fullname == fullname).ToList();
+            return clients;
+        }
         public void InsertRange(List<Client> clients)
         {
             context.AddRange(clients);

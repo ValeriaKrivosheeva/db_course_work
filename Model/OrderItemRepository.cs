@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using System.Collections.Generic;
 namespace Model
 {
     public class OrderItemRepository
@@ -23,6 +24,11 @@ namespace Model
         {
             context.order_items.RemoveRange(context.order_items.Where(x => x.garment_id == garmentId));
             context.SaveChanges();
+        }
+        public List<int> GetByOrderId(int orderId)
+        {
+            List<int> orderItems = context.order_items.Where(x => x.order_id == orderId).Select(o => o.garment_id).ToList();
+            return orderItems;
         }
     }
 }

@@ -48,5 +48,15 @@ namespace Model
             int result = context.garments.Count<Garment>();
             return result;
         }
+        public List<Garment> GetByBrand(string brand)
+        {
+            List<Garment> garments = context.garments.Where(x => x.brand == brand).ToList();
+            return garments;
+        }
+        public List<Garment> GetByCostRange(string brand, int minCost, int maxCost)
+        {
+            List<Garment> garments = context.garments.Where(x => x.cost >= minCost && x.cost <= maxCost && x.brand == brand).ToList();
+            return garments;
+        }
     }
 }

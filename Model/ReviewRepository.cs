@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using System.Collections.Generic;
 namespace Model
 {
     public class ReviewRepository
@@ -43,6 +44,21 @@ namespace Model
         public Review GetById(int id)
         {
             Review result = context.reviews.Find(id);
+            return result;
+        }
+        public List<Review> GetByClientId(int clientId)
+        {
+            List<Review> reviews = context.reviews.Where(x => x.client_id == clientId).ToList();
+            return reviews;
+        }
+        public List<Review> GetByGarmentId(int garmentId)
+        {
+            List<Review> reviews = context.reviews.Where(x => x.garment_id == garmentId).ToList();
+            return reviews;
+        }
+        public List<int> GetGarmentRatings(int garmentId)
+        {
+            List<int> result = context.reviews.Where(x => x.garment_id == garmentId).Select(o => o.rating).ToList();
             return result;
         }
         public void Generate(int amount)
