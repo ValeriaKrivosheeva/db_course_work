@@ -17,7 +17,12 @@ namespace ControllerLib
 
 
                 5. Chart Rating
-                6. Exit");
+                6. Garment Clients Chart
+                7. Hash chart
+                8. Btree chart
+                9. Income by months in certain year chart
+                10. Generate garment report
+                11. Exit");
                 string command = Console.ReadLine();
                 switch(command)
                 {
@@ -37,6 +42,21 @@ namespace ControllerLib
                         ProcessRatingChart(controller);
                         break;
                     case "6":
+                        ProcessClientsAgeChart(controller);
+                        break;
+                    case "7":
+                        controller.CreateHashChart();
+                        break;
+                    case "8":
+                        controller.CreateBtreeChart();
+                        break;
+                    case "9":
+                        ProcessIncomeChart(controller);
+                        break;
+                    case "10":
+                        controller.GenerateGarmentReport(GetIdToProcess("garment", "generate report"));
+                        break;
+                    case "11":
                         Console.WriteLine("End.");
                         Environment.Exit(0);
                         break;
@@ -46,10 +66,32 @@ namespace ControllerLib
                 }
             }
         }
+        static void ProcessIncomeChart(Controller controller)
+        {
+            int year = 0;
+            while(true)
+            {
+                Console.Write("Enter year to view income by months: ");
+                if(int.TryParse(Console.ReadLine(), out year))
+                {
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Error: year must be integer. Try again.");
+                }
+            }
+            controller.CreateIncomeByMonthsChart(year);
+        }
         static void ProcessRatingChart(Controller controller)
         {
             int garmentId = GetIdToProcess("garment", "build rating chart");
             controller.CreateGarmentRatingChart(garmentId);
+        }
+        static void ProcessClientsAgeChart(Controller controller)
+        {
+            int garmentId = GetIdToProcess("garment", "build clients age chart");
+            controller.CreateGarmentClientsAgeChart(garmentId);
         }
         static void ProcessGarment(Controller controller)
         {

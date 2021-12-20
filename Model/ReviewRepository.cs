@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Collections.Generic;
+using System;
 namespace Model
 {
     public class ReviewRepository
@@ -59,6 +60,52 @@ namespace Model
         public List<int> GetGarmentRatings(int garmentId)
         {
             List<int> result = context.reviews.Where(x => x.garment_id == garmentId).Select(o => o.rating).ToList();
+            return result;
+        }
+        public Review GetHighestRatingReview(int garmentId)
+        {
+            try
+            {
+                return context.reviews.Where(x => x.garment_id == garmentId).OrderByDescending(o => o.rating).First();
+            }
+            catch
+            {
+                return null;
+            }
+        }
+        public Review GetLowestRatingReview(int garmentId)
+        {
+            try
+            {
+                return context.reviews.Where(x => x.garment_id == garmentId).OrderBy(o => o.rating).First();
+            }
+            catch
+            {
+                return null;
+            }
+        }
+        public double GetGarmentRating(int garmentId)
+        {
+            return context.reviews.Where(x => x.garment_id == garmentId).Average(o => o.rating);
+        }
+        public int GetCount()
+        {
+            int result = context.reviews.Count<Review>();
+            return result;
+        }
+        public void CreateBtreeIndex()
+        {
+            string sql = "CREATE INDEX IF NOT EXISTS rw_index ON reviews USING btree(rating, posted_at)";
+            context.Database.ExecuteSqlRaw(sql);
+        }
+        public void DropBtreeIndex()
+        {
+            string sql = "DROP INDEX IF EXISTS rw_index";
+            context.Database.ExecuteSqlRaw(sql);
+        }
+        public List<Review> GetByRatingAndPosted(int rating, DateTime posted_at)
+        {
+            List<Review> result = context.reviews.Where(x => x.rating >= rating && x.posted_at > posted_at).ToList();
             return result;
         }
         public void Generate(int amount)

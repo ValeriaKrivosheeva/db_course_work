@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+
 namespace Model
 {
     public class ServiceContext : DbContext

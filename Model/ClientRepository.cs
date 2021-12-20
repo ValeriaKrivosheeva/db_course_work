@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
+using System;
 namespace Model
 {
     public class ClientRepository
@@ -50,6 +51,22 @@ namespace Model
         {
             int result = context.clients.Count<Client>();
             return result;
+        }
+        public void CreateFullnameIndex()
+        {
+            string sql = "CREATE INDEX IF NOT EXISTS cl_fullname ON clients USING hash(fullname)";
+            context.Database.ExecuteSqlRaw(sql);
+        }
+        public void DropFullnameIndex()
+        {
+            string sql = "DROP INDEX IF EXISTS cl_fullname";
+            context.Database.ExecuteSqlRaw(sql);
+        }
+        public string GetRandomFullnameForChart()
+        {
+            Random rand = new Random();
+            int toSkip = rand.Next(1, context.clients.Count());
+            return context.clients.Skip(toSkip).Take(1).First().fullname;
         }
     }
 }

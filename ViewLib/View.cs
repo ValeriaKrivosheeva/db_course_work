@@ -49,7 +49,40 @@ namespace ViewLib
         }
         public static void OutputGarmentRatingChart(List<int> rating, string garmentName)
         {
-            Visualization.CreateFootwearRatingsChart(rating, garmentName);
+            Console.WriteLine("\nCreating chart...");
+            ChartsGenerator.CreateGarmentRatingsChart(rating, garmentName, $"./../data/ratingChart {garmentName}.png");
+            Console.WriteLine("Done!\n");
+        }
+        public static void OutputGarmentClientsAgeChart(List<double> numberOfClients, string garmentName)
+        {
+            try
+            {
+                Console.WriteLine("\nCreating chart...");
+                ChartsGenerator.CreateGarmentClientsChart(numberOfClients, garmentName);
+                Console.WriteLine("Done!\n");
+            }
+            catch(Exception ex)
+            {
+                OutputError(ex.Message);
+            }
+        }
+        public static void OutputHashChart(double[] withoutIndexes, double[] withIndexes)
+        {
+            Console.WriteLine("\nCreating chart...");
+            ChartsGenerator.CreateHashChart(withoutIndexes, withIndexes);
+            Console.WriteLine("Done!\n");
+        }
+        public static void OutputBtreeChart(double[] withoutIndexes, double[] withIndexes)
+        {
+            Console.WriteLine("\nCreating chart...");
+            ChartsGenerator.CreateBtreeChart(withoutIndexes, withIndexes);
+            Console.WriteLine("Done!\n");
+        }
+        public static void OutputYearIncomesChart(List<double> incomes, int year)
+        {
+            Console.WriteLine("\nCreating chart...");
+            ChartsGenerator.CreateIncomesChart(incomes, year);
+            Console.WriteLine("Done!\n");
         }
     }
 }

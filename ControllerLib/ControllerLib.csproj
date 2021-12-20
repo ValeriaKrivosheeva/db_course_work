@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Model\Model.csproj" />
     <ProjectReference Include="..\ViewLib\ViewLib.csproj" />
+    <ProjectReference Include="..\VisualizationLib\VisualizationLib.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

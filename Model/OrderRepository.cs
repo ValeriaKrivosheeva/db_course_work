@@ -53,6 +53,30 @@ namespace Model
             List<Order> orders = context.orders.Where(x => x.client_id == clientId).ToList();
             return orders;
         }
+        public List<double> GetIncomesByYear(int year)
+        {
+            List<double> result = new List<double>();
+            var connection = context.Database.GetDbConnection();
+                try
+                {
+                    connection.Open();
+                    using (var command = connection.CreateCommand())
+                    {
+                        for(int i = 1; i<12; i++)
+                        {
+                            command.CommandText = @$"SELECT SUM(garments.cost) FROM garments,orders,order_items WHERE orders.created_date >= timestamp '{year}-{i}-1' AND orders.created_date < timestamp '{year}-{i+1}-1'
+                            AND orders.id = order_items.order_id AND order_items.garment_id = garments.id";
+                            result.Add(Convert.ToDouble(command.ExecuteScalar()));
+                        }
+                        command.CommandText = @$"SELECT SUM(garments.cost) FROM garments,orders,order_items WHERE orders.created_date >= timestamp '{year}-12-1' AND orders.created_date < timestamp '{year+1}-1-1'
+                        AND orders.id = order_items.order_id AND order_items.garment_id = garments.id";
+                        result.Add(Convert.ToDouble(command.ExecuteScalar()));
+                    }
+                }
+                catch (System.Exception e) { Console.WriteLine(e.Message);}
+                finally { connection.Close(); }
+                return result;
+        }
         public void Generate(int amount)
         {
             string query = @$"CREATE TRIGGER order_items

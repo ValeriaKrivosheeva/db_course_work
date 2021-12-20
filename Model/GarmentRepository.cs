@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using EFCore.BulkExtensions;
 using System.Collections.Generic;
 using System.Linq;
+using System;
 namespace Model
 {
     public class GarmentRepository
@@ -53,10 +54,80 @@ namespace Model
             List<Garment> garments = context.garments.Where(x => x.brand == brand).ToList();
             return garments;
         }
-        public List<Garment> GetByCostRange(string brand, int minCost, int maxCost)
+        public List<Garment> GetByCostRangeAndBrand(string brand, int minCost, int maxCost)
         {
             List<Garment> garments = context.garments.Where(x => x.cost >= minCost && x.cost <= maxCost && x.brand == brand).ToList();
             return garments;
+        }
+        public List<Garment> GetByCostRange(int minCost, int maxCost)
+        {
+            List<Garment> garments = context.garments.Where(x => x.cost >= minCost && x.cost <= maxCost).ToList();
+            return garments;
+        }
+        public void CreateBrandIndex()
+        {
+            string sql = "CREATE INDEX IF NOT EXISTS gm_brand ON garments USING hash(brand)";
+            context.Database.ExecuteSqlRaw(sql);
+        }
+        public void DropBrandIndex()
+        {
+            string sql = "DROP INDEX IF EXISTS gm_brand";
+            context.Database.ExecuteSqlRaw(sql);
+        }
+        public void CreateBtreeIndex()
+        {
+            string sql = "CREATE INDEX IF NOT EXISTS gm_cost ON garments USING btree (cost)";
+            context.Database.ExecuteSqlRaw(sql);
+        }
+        public void DropBtreeIndex()
+        {
+            string sql = "DROP INDEX IF EXISTS gm_brand";
+            context.Database.ExecuteSqlRaw(sql);
+        }
+        public string GetRandomBrandForChart()
+        {
+            Random rand = new Random();
+            int toSkip = rand.Next(1, context.garments.Count());
+            return context.garments.Skip(toSkip).Take(1).First().brand;
+        }
+        public List<double> GetClientsAge(int garmentId)
+        {
+            List<double> result = new List<double>();
+            var connection = context.Database.GetDbConnection();
+            
+                try
+                {
+                    connection.Open();
+                    using (var command = connection.CreateCommand())
+                    {
+                        command.CommandText = @$"SELECT Count(*) FROM clients, orders, order_items WHERE order_items.garment_id = {garmentId} 
+                        AND orders.id = order_items.order_id AND clients.id = orders.client_id AND clients.birthday_date >= timestamp '{DateTime.Now.Year - 18}-{DateTime.Now.Month}-{DateTime.Now.Day}'";
+                        result.Add(Convert.ToDouble(command.ExecuteScalar()));
+
+                        command.CommandText = @$"SELECT Count(*) FROM clients, orders, order_items WHERE order_items.garment_id = {garmentId} 
+                        AND orders.id = order_items.order_id AND clients.id = orders.client_id AND clients.birthday_date < timestamp '{DateTime.Now.Year - 18}-{DateTime.Now.Month}-{DateTime.Now.Day}'
+                        AND clients.birthday_date >= timestamp '{DateTime.Now.Year - 25}-{DateTime.Now.Month}-{DateTime.Now.Day}'";
+                        result.Add(Convert.ToDouble(command.ExecuteScalar()));
+
+                        command.CommandText = @$"SELECT Count(*) FROM clients, orders, order_items WHERE order_items.garment_id = {garmentId} 
+                        AND orders.id = order_items.order_id AND clients.id = orders.client_id AND clients.birthday_date < timestamp '{DateTime.Now.Year - 25}-{DateTime.Now.Month}-{DateTime.Now.Day}'
+                        AND clients.birthday_date >= timestamp '{DateTime.Now.Year - 35}-{DateTime.Now.Month}-{DateTime.Now.Day}'";
+                        result.Add(Convert.ToDouble(command.ExecuteScalar()));
+
+                        command.CommandText = @$"SELECT Count(*) FROM clients, orders, order_items WHERE order_items.garment_id = {garmentId} 
+                        AND orders.id = order_items.order_id AND clients.id = orders.client_id AND clients.birthday_date < timestamp '{DateTime.Now.Year - 35}-{DateTime.Now.Month}-{DateTime.Now.Day}'
+                        AND clients.birthday_date >= timestamp '{DateTime.Now.Year - 45}-{DateTime.Now.Month}-{DateTime.Now.Day}'";
+                        result.Add(Convert.ToDouble(command.ExecuteScalar()));
+
+                        command.CommandText = @$"SELECT Count(*) FROM clients, orders, order_items WHERE order_items.garment_id = {garmentId} 
+                        AND orders.id = order_items.order_id AND clients.id = orders.client_id AND clients.birthday_date < timestamp '{DateTime.Now.Year - 45}-{DateTime.Now.Month}-{DateTime.Now.Day}'";
+                        result.Add(Convert.ToDouble(command.ExecuteScalar()));
+                    }
+                }
+                catch (System.Exception e) { Console.WriteLine(e.Message);}
+                finally { connection.Close(); }
+                return result;
+            
         }
     }
 }

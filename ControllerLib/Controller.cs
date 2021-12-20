@@ -2,6 +2,8 @@
 using Model;
 using ViewLib;
 using System.Collections.Generic;
+using VisualizationLib;
+using System.Diagnostics;
 
 namespace ControllerLib
 {
@@ -86,7 +88,7 @@ namespace ControllerLib
                 View.OutputError("Min cost cannot be more than max cost.");
                 return;
             }
-            List<Garment> garments = service.garmentRepository.GetByCostRange(brand, minCost, maxCost);
+            List<Garment> garments = service.garmentRepository.GetByCostRangeAndBrand(brand, minCost, maxCost);
             View.OutputEntities<Garment>(garments);
         }
         public void InsertOrder(string shipMethod, int clientId, List<int> garments)
@@ -331,6 +333,144 @@ namespace ControllerLib
             }
             List<int> ratings = service.reviewRepository.GetGarmentRatings(garmentId);
             View.OutputGarmentRatingChart(ratings, garmentById.name);
+        }
+        public void CreateGarmentClientsAgeChart(int garmentId)
+        {
+            Garment garmentById = service.garmentRepository.GetById(garmentId);
+            if(garmentById == null)
+            {
+                View.OutputError($"Garment with id [{garmentId}] doesn`t exist.");
+                return;
+            }
+            List<double> numberOfClients = service.garmentRepository.GetClientsAge(garmentId);
+            View.OutputGarmentClientsAgeChart(numberOfClients, garmentById.name);
+        }
+        public void CreateHashChart()
+        {
+            int clientsCount = service.clientRepository.GetCount();
+            int garmentCount = service.garmentRepository.GetCount();
+            if(clientsCount == 0 || garmentCount == 0)
+            {
+                View.OutputError("There aren`t enough entities to conduct test.");
+                return;
+            }
+            string fullname = service.clientRepository.GetRandomFullnameForChart();
+            string brand = service.garmentRepository.GetRandomBrandForChart();
+            double[] withoutIndexes = new double[2];
+            Stopwatch sw = new Stopwatch();
+            service.clientRepository.DropFullnameIndex();
+            sw.Start();
+            List<Client> clientsById = service.clientRepository.GetByFullname(fullname);
+            sw.Stop();
+            withoutIndexes[0] = sw.ElapsedMilliseconds;
+            sw.Reset();
+            service.garmentRepository.DropBrandIndex();
+            sw.Start();
+            List<Garment> garmentsById = service.garmentRepository.GetByBrand(brand);
+            sw.Stop();
+            withoutIndexes[1] = sw.ElapsedMilliseconds;
+            sw.Reset();
+
+            double[] withIndexes = new double[2];
+            service.clientRepository.CreateFullnameIndex();
+            sw.Start();
+            List<Client> clients = service.clientRepository.GetByFullname(fullname);
+            sw.Stop();
+            withIndexes[0] = sw.ElapsedMilliseconds;
+            sw.Reset();
+            service.garmentRepository.CreateBrandIndex();
+            sw.Start();
+            List<Garment> garments = service.garmentRepository.GetByBrand(brand);
+            sw.Stop();
+            withIndexes[1] = sw.ElapsedMilliseconds;
+            sw.Reset();
+
+            View.OutputHashChart(withoutIndexes, withIndexes);
+        }
+        public void CreateBtreeChart()
+        {
+            int garmentCount = service.garmentRepository.GetCount();
+            int reviewCount = service.reviewRepository.GetCount();
+            if(garmentCount == 0 || reviewCount == 0)
+            {
+                View.OutputError("There aren`t enough entities to conduct test.");
+                return;
+            }
+            Random ran = new Random();
+            int low1 = ran.Next(0, 200);
+            int high1 = ran.Next(300, 500);
+            double[] withoutIndexes = new double[2];
+            Stopwatch sw = new Stopwatch();
+            service.garmentRepository.DropBtreeIndex();
+            sw.Start();
+            List<Garment> garmentsById1 = service.garmentRepository.GetByCostRange(low1, high1);
+            sw.Stop();
+            withoutIndexes[0] = sw.ElapsedMilliseconds;
+            sw.Reset();
+            
+            int minRating = ran.Next(0, 11);
+            DateTime start = new DateTime(2019,1,1);
+            DateTime end = new DateTime(2021,1,1);
+            TimeSpan range = end-start;
+            TimeSpan ts = new TimeSpan((long)(ran.NextDouble() * range.Ticks));
+            DateTime minPostedAt = start + ts;
+            service.reviewRepository.DropBtreeIndex();
+            sw.Start();
+            List<Review> reviewsById1 = service.reviewRepository.GetByRatingAndPosted(minRating, minPostedAt);
+            sw.Stop();
+            withoutIndexes[1] = sw.ElapsedMilliseconds;
+            sw.Reset();
+
+            double[] withIndexes = new double[2];
+            service.garmentRepository.CreateBtreeIndex();
+            sw.Start();
+            List<Garment> garments1 = service.garmentRepository.GetByCostRange(low1, high1);
+            sw.Stop();
+            withIndexes[0] = sw.ElapsedMilliseconds;
+            sw.Reset();
+
+            service.reviewRepository.CreateBtreeIndex();
+            sw.Start();
+            List<Review> reviews2 = service.reviewRepository.GetByRatingAndPosted(minRating, minPostedAt);
+            sw.Stop();
+            withIndexes[1] = sw.ElapsedMilliseconds;
+            sw.Reset();
+
+            View.OutputBtreeChart(withoutIndexes, withIndexes);
+        }
+        public void GenerateGarmentReport(int garmentId)
+        {
+            Garment garmentById = service.garmentRepository.GetById(garmentId);
+            if(garmentById == null)
+            {
+                View.OutputError($"Garment with id [{garmentId}] doesn`t exist.");
+                return;
+            }
+            Review highestRatingRev = service.reviewRepository.GetHighestRatingReview(garmentId);
+            List<int> ratings = service.reviewRepository.GetGarmentRatings(garmentId);
+            if(highestRatingRev == null)
+            {
+                ReportGenerator.SetValues(garmentById,null,null,null,null,0,ratings);
+                ReportGenerator.Run();
+                return;
+            }
+            Review lowestRatingRev = service.reviewRepository.GetLowestRatingReview(garmentId);
+            Client highestRatingClient = service.clientRepository.GetById(highestRatingRev.client_id);
+            Client lowestRatingClient = service.clientRepository.GetById(lowestRatingRev.client_id);
+            double rating = service.reviewRepository.GetGarmentRating(garmentId);
+
+            ReportGenerator.SetValues(garmentById,highestRatingRev,lowestRatingRev,highestRatingClient,lowestRatingClient,rating,ratings);
+            ReportGenerator.Run();
+        }
+        public void CreateIncomeByMonthsChart(int year)
+        {
+            List<double> incomes = service.orderRepository.GetIncomesByYear(year);
+            if(incomes.Count == 0)
+            {
+                View.OutputError("There are not enough info to do research.");
+                return;
+            }
+            View.OutputYearIncomesChart(incomes, year);
         }
     }
 }
