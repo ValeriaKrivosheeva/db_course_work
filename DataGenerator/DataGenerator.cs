@@ -19,7 +19,7 @@ namespace DataGenerator
                 4. Generate reviews
                 5. Exit");
                 string command = Console.ReadLine();
-                string generatorPath = "./../data/";
+                string generatorPath = "./../data/generator/";
                 switch(command)
                 {
                     case "1":

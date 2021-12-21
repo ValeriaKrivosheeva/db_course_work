@@ -6,7 +6,7 @@ namespace ControllerLib
     {
         public static void ProcessUserInterface(Controller controller)
         {
-            Console.WriteLine("Hi!");
+            Console.WriteLine("Hi!\n");
             while(true)
             {
                 Console.WriteLine(@"Select the entity to work with (by numbers):
@@ -15,14 +15,20 @@ namespace ControllerLib
                 3. Review
                 4. Client
 
+Select the statistics to get in chart or report format:
+                5. Ratings of certain garment
+                6. Age category of clients for certain garment
+                7. Shop income by months in certain year
+                8. Generate certain garment report
 
-                5. Chart Rating
-                6. Garment Clients Chart
-                7. Hash chart
-                8. Btree chart
-                9. Income by months in certain year chart
-                10. Generate garment report
-                11. Exit");
+Additional options:
+                9. Get hash index effectivness chart
+                10. Get btree index effectivness chart
+
+                11. Backup
+                12. Restore
+
+                13. Exit");
                 string command = Console.ReadLine();
                 switch(command)
                 {
@@ -45,18 +51,24 @@ namespace ControllerLib
                         ProcessClientsAgeChart(controller);
                         break;
                     case "7":
-                        controller.CreateHashChart();
-                        break;
-                    case "8":
-                        controller.CreateBtreeChart();
-                        break;
-                    case "9":
                         ProcessIncomeChart(controller);
                         break;
-                    case "10":
+                    case "8":
                         controller.GenerateGarmentReport(GetIdToProcess("garment", "generate report"));
                         break;
+                    case "9":
+                        controller.CreateHashChart();
+                        break;
+                    case "10":
+                        controller.CreateBtreeChart();
+                        break;
                     case "11":
+                        controller.Backup();
+                        break;
+                    case "12":
+                        controller.Restore("/home/valeria/Desktop/db_course_work/data/backup/1.sql");
+                        break;
+                    case "13":
                         Console.WriteLine("End.");
                         Environment.Exit(0);
                         break;

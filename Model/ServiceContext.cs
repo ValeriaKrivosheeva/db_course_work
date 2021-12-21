@@ -9,9 +9,13 @@ namespace Model
         public DbSet<Review> reviews { get; set; }
         public DbSet<Order> orders { get; set; }
         public DbSet<OrderItem> order_items { get; set; }
+        public ServiceContext(DbContextOptions<ServiceContext> options) : base(options)
+        {
+            Database.EnsureCreated();
+        }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseNpgsql("Host=localhost;Database=online-shop;Username=postgres;Password=LeraLera");
+            optionsBuilder.UseNpgsql("Host=localhost;Database=online_shop;Username=postgres;Password=LeraLera");
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -46,6 +50,23 @@ namespace Model
                     .WithMany(p => p.order_items)
                     .HasForeignKey(pt => pt.garment_id));
         }
-
+        public void CreateSubscription()
+        {
+            var result = -1;
+            using (var command = this.Database.GetDbConnection().CreateCommand())
+            {
+                command.CommandText = "SELECT COUNT(*) FROM pg_subscription";
+                this.Database.OpenConnection();
+                using (var reader = command.ExecuteReader())
+                    if (reader.Read())
+                        result = reader.GetInt32(0);
+                this.Database.CloseConnection();
+            }
+            if (result == 0)
+                this.Database.ExecuteSqlRaw("CREATE SUBSCRIPTION logical_sub\n" +
+                                                "CONNECTION 'host=localhost port=5432 user=postgres password=LeraLera dbname=online_shop'\n" +
+                                                "PUBLICATION logical_pub\n" +
+                                                "WITH(create_slot = false, slot_name = 'logical_slot');");
+        }
     }
 }

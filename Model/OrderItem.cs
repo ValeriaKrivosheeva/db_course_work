@@ -2,6 +2,7 @@ namespace Model
 {
     public class OrderItem
     {
+        public int id { get; set; }
         public int garment_id { get; set; }
         public int order_id { get; set; }
         public Garment garment { get; set; }

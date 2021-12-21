@@ -117,7 +117,7 @@ namespace ControllerLib
                     OrderItem orderItem = new OrderItem(){garment_id = garm, order_id = orderId};
                     service.orderItemRepository.Insert(orderItem);
                 }
-                View.OutputInsertResult(typeof(Garment).Name, orderId);
+                View.OutputInsertResult(typeof(Order).Name, orderId);
             }
             catch(Exception ex)
             {
@@ -471,6 +471,38 @@ namespace ControllerLib
                 return;
             }
             View.OutputYearIncomesChart(incomes, year);
+        }
+        public void Backup()
+        {
+            Process process = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = "/bin/bash",
+                    Arguments = $"-c \"/home/valeria/Desktop/db_course_work/data/backup/backup.sh {DateTime.Now.ToString().Replace('/','.')}\"",
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                }
+            };
+            process.Start();
+            process.WaitForExit();
+        }
+        public void Restore(string filePath)
+        {
+            Process process = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = "/bin/bash",
+                    Arguments = $"-c \"/home/valeria/Desktop/db_course_work/data/backup/restore.sh {filePath}\"",
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    Verb = "sudo"
+                }
+            };
+            process.Start();
+            process.WaitForExit();
+            Environment.Exit(0);
         }
     }
 }
