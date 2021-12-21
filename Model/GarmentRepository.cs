@@ -124,7 +124,7 @@ namespace Model
                         result.Add(Convert.ToDouble(command.ExecuteScalar()));
                     }
                 }
-                catch (System.Exception e) { Console.WriteLine(e.Message);}
+                catch (System.Exception e) { }
                 finally { connection.Close(); }
                 return result;
             

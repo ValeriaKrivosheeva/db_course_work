@@ -9,13 +9,18 @@ namespace Model
         public DbSet<Review> reviews { get; set; }
         public DbSet<Order> orders { get; set; }
         public DbSet<OrderItem> order_items { get; set; }
-        public ServiceContext(DbContextOptions<ServiceContext> options) : base(options)
+        public string connectionString { get; set; }
+        public ServiceContext(string connectionString)
         {
+            this.connectionString = connectionString;
             Database.EnsureCreated();
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseNpgsql("Host=localhost;Database=online_shop;Username=postgres;Password=LeraLera");
+            if (!optionsBuilder.IsConfigured)
+            {
+                optionsBuilder.UseNpgsql(connectionString);
+            }
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

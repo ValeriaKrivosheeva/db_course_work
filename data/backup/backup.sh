@@ -1,1 +1,1 @@
-/usr/bin/pg_dump --file "/home/valeria/Desktop/db_course_work/data/backup/$1.sql" --host "localhost" --port "5432" --username "postgres" --verbose --format=c --blobs "online-shop"
+/usr/bin/pg_dump --file "/home/valeria/Desktop/db_course_work/data/backup/$1.sql" --host "localhost" --port "5432" --username "postgres" --verbose --format=c --blobs "online_shop"

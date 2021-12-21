@@ -4,6 +4,7 @@ using ViewLib;
 using System.Collections.Generic;
 using VisualizationLib;
 using System.Diagnostics;
+using System.IO;
 
 namespace ControllerLib
 {
@@ -489,6 +490,11 @@ namespace ControllerLib
         }
         public void Restore(string filePath)
         {
+            if(!File.Exists(filePath))
+            {
+                View.OutputError("Entered file path doesn`t exist.");
+                return;
+            }
             Process process = new Process
             {
                 StartInfo = new ProcessStartInfo

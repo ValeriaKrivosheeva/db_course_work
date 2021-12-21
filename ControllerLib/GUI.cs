@@ -66,7 +66,7 @@ Additional options:
                         controller.Backup();
                         break;
                     case "12":
-                        controller.Restore("/home/valeria/Desktop/db_course_work/data/backup/1.sql");
+                        controller.Restore("/home/valeria/Desktop/db_course_work/data/backup/12.21.2021.sql");
                         break;
                     case "13":
                         Console.WriteLine("End.");
@@ -77,6 +77,12 @@ Additional options:
                         break;
                 }
             }
+        }
+        static void ProcessRestore()
+        {
+            Console.Write("Enter file path to restore from: ");
+            string filePath = Console.ReadLine();
+            
         }
         static void ProcessIncomeChart(Controller controller)
         {

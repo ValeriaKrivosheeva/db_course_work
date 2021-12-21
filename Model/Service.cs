@@ -23,7 +23,7 @@ namespace Model
         public void CreateContext()
         {
             var optionsBuilder = new DbContextOptionsBuilder<ServiceContext>();
-            context = new ServiceContext(optionsBuilder.UseNpgsql("Host=localhost;Database=online_shop;Username=postgres;Password=LeraLera").Options);
+            context = new ServiceContext("Host=localhost;Database=online_shop;Username=postgres;Password=LeraLera");
             var result = -1;
             using (var command = context.Database.GetDbConnection().CreateCommand())
             {
@@ -50,7 +50,7 @@ namespace Model
 
             if (result == 0)
                 context.Database.ExecuteSqlRaw("SELECT * FROM pg_create_logical_replication_slot('logical_slot', 'pgoutput');");
-            replica = new ServiceContext(optionsBuilder.UseNpgsql("Host=localhost;Database=new_online_shop;Username=postgres;Password=LeraLera").Options);
+            replica = new ServiceContext("Host=localhost;Database=new_online_shop;Username=postgres;Password=LeraLera");
             replica.CreateSubscription();
         }
     }
