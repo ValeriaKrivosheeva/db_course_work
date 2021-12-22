@@ -84,5 +84,14 @@ namespace ViewLib
             ChartsGenerator.CreateIncomesChart(incomes, year);
             Console.WriteLine("Done!\n");
         }
+        public static void OutputBackupInfo(string path, long time)
+        {
+            Console.WriteLine($"Backup was done successfully in [{time.ToString()}] ms! You can find it by directory {path}");
+        }
+        public static void OutputRestoreInfo(string path, long time)
+        {
+            Console.WriteLine($"Restore was done successfully in [{time.ToString()}] ms from file by directory {path}");
+            Console.WriteLine("Please, restart program.");
+        }
     }
 }

@@ -485,14 +485,30 @@ namespace ControllerLib
                     CreateNoWindow = true
                 }
             };
-            process.Start();
-            process.WaitForExit();
+            try
+            {
+                Stopwatch sw = new Stopwatch();
+                sw.Start();
+                process.Start();
+                process.WaitForExit();
+                sw.Stop();
+                View.OutputBackupInfo($"/home/valeria/Desktop/db_course_work/data/backup/backup.sh {DateTime.Now.ToString().Replace('/','.')}", sw.ElapsedMilliseconds);
+            }
+            catch(Exception ex)
+            {
+                View.OutputError(ex.Message);
+            }
         }
         public void Restore(string filePath)
         {
             if(!File.Exists(filePath))
             {
                 View.OutputError("Entered file path doesn`t exist.");
+                return;
+            }
+            if(!filePath.EndsWith(".sql"))
+            {
+                View.OutputError("Entered file path is incorrect.");
                 return;
             }
             Process process = new Process
@@ -506,8 +522,19 @@ namespace ControllerLib
                     Verb = "sudo"
                 }
             };
-            process.Start();
-            process.WaitForExit();
+            try
+            {
+                Stopwatch sw = new Stopwatch();
+                sw.Start();
+                process.Start();
+                process.WaitForExit();
+                sw.Stop();
+                View.OutputRestoreInfo(filePath, sw.ElapsedMilliseconds);
+            }
+            catch(Exception ex)
+            {
+                View.OutputError(ex.Message);
+            }
             Environment.Exit(0);
         }
     }

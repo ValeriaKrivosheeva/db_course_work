@@ -64,14 +64,18 @@ namespace Model
                 this.Database.OpenConnection();
                 using (var reader = command.ExecuteReader())
                     if (reader.Read())
+                    {
                         result = reader.GetInt32(0);
+                    }
                 this.Database.CloseConnection();
             }
             if (result == 0)
+            {
                 this.Database.ExecuteSqlRaw("CREATE SUBSCRIPTION logical_sub\n" +
-                                                "CONNECTION 'host=localhost port=5432 user=postgres password=LeraLera dbname=online_shop'\n" +
-                                                "PUBLICATION logical_pub\n" +
-                                                "WITH(create_slot = false, slot_name = 'logical_slot');");
+                                            "CONNECTION 'host=localhost port=5432 user=postgres password=LeraLera dbname=online_shop'\n" +
+                                            "PUBLICATION logical_pub\n" +
+                                            "WITH(create_slot = false, slot_name = 'logical_slot');");
+            }
         }
     }
 }

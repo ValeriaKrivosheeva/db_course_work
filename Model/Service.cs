@@ -31,12 +31,16 @@ namespace Model
                 context.Database.OpenConnection();
                 using (var reader = command.ExecuteReader())
                     if (reader.Read())
+                    {
                         result = reader.GetInt32(0);
+                    }
                 context.Database.CloseConnection();
             }
 
             if (result == 0)
+            {
                 context.Database.ExecuteSqlRaw("CREATE PUBLICATION logical_pub FOR ALL TABLES;");
+            }
 
             using (var command = context.Database.GetDbConnection().CreateCommand())
             {
@@ -44,12 +48,16 @@ namespace Model
                 context.Database.OpenConnection();
                 using (var reader = command.ExecuteReader())
                     if (reader.Read())
+                    {
                         result = reader.GetInt32(0);
+                    }
                 context.Database.CloseConnection();
             }
 
             if (result == 0)
+            {
                 context.Database.ExecuteSqlRaw("SELECT * FROM pg_create_logical_replication_slot('logical_slot', 'pgoutput');");
+            }
             replica = new ServiceContext("Host=localhost;Database=new_online_shop;Username=postgres;Password=LeraLera");
             replica.CreateSubscription();
         }
